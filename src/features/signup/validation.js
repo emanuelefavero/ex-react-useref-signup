@@ -1,6 +1,6 @@
 import { SPECIALIZATIONS } from './constants';
 
-const SYMBOL_REGEX = /[!@#$%^&*()\-\_=+\[\]{}|;:'\\",.<>?/`~]/;
+const SYMBOL_REGEX = /[!@#$%^&*()\-_=+[\]{}|;:'\\",.<>?/`~]/;
 const LETTER_REGEX = /[a-zA-Z]/;
 const NUMBER_REGEX = /[0-9]/;
 const ALPHANUMERIC_REGEX = /^[a-zA-Z0-9]+$/;
