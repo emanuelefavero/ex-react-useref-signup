@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from './ui/Button';
 import { FieldMessage } from './ui/FieldMessage';
 import { Input } from './ui/Input';
@@ -8,12 +8,10 @@ import { Textarea } from './ui/Textarea';
 import './SignupForm.css';
 
 const SPECIALIZATIONS = ['Full Stack', 'Frontend', 'Backend'];
+
 const INITIAL_FORM_DATA = {
-  fullName: '',
   username: '',
   password: '',
-  specialization: '',
-  yearsOfExperience: '1',
   description: '',
 };
 
@@ -74,6 +72,7 @@ const validateForm = formData => {
 };
 
 export const SignupForm = () => {
+  const formRef = useRef(null);
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [submitErrors, setSubmitErrors] = useState({});
   const [touchedFields, setTouchedFields] = useState({}); // show live validation errors only for touched fields
@@ -94,46 +93,53 @@ export const SignupForm = () => {
   const handleChange = e => {
     const { name, value } = e.target;
 
-    if (name in liveErrors) {
-      setTouchedFields(prevFields => ({ ...prevFields, [name]: true }));
-    }
+    setTouchedFields(prevFields => ({ ...prevFields, [name]: true }));
 
     setSubmitErrors(prevErrors => ({
       ...prevErrors,
       [name]: '',
     }));
 
-    setFormData({
-      ...formData,
+    setFormData(prevData => ({
+      ...prevData,
       [name]: value,
-    });
+    }));
   };
 
   const handleSubmit = e => {
     e.preventDefault();
 
+    const fields = formRef.current.elements; // Get all form fields from ref
+
+    // Collect all form data including fields not managed by formData state
+    const data = {
+      ...formData,
+      fullName: fields.namedItem('fullName').value,
+      specialization: fields.namedItem('specialization').value,
+      yearsOfExperience: fields.namedItem('yearsOfExperience').value,
+    };
+
     setTouchedFields({ username: true, password: true, description: true });
 
-    const validationErrors = validateForm(formData);
+    const validationErrors = validateForm(data);
     setSubmitErrors(validationErrors);
 
     const hasErrors = Object.values(validationErrors).some(Boolean);
 
     if (hasErrors) return;
 
-    console.log('formData:', formData);
+    console.log('formData:', data);
   };
 
   return (
-    <form onSubmit={handleSubmit} className='signup-form'>
+    <form ref={formRef} onSubmit={handleSubmit} className='signup-form'>
       <div className='form-field'>
         <Label htmlFor='fullName'>Full Name</Label>
         <Input
           id='fullName'
           name='fullName'
           placeholder='John Doe'
-          value={formData.fullName}
-          onChange={handleChange}
+          defaultValue=''
           aria-invalid={Boolean(errors.fullName)}
           aria-describedby='fullName-message'
         />
@@ -198,8 +204,7 @@ export const SignupForm = () => {
         <Select
           id='specialization'
           name='specialization'
-          value={formData.specialization}
-          onChange={handleChange}
+          defaultValue=''
           aria-invalid={Boolean(errors.specialization)}
           aria-describedby='specialization-message'
         >
@@ -226,8 +231,7 @@ export const SignupForm = () => {
           type='number'
           min={1}
           step={1}
-          value={formData.yearsOfExperience}
-          onChange={handleChange}
+          defaultValue='1'
           aria-invalid={Boolean(errors.yearsOfExperience)}
           aria-describedby='yearsOfExperience-message'
         />
