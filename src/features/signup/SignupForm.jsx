@@ -1,75 +1,24 @@
 import { ArrowUp } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { Button } from './ui/Button';
-import { FieldMessage } from './ui/FieldMessage';
-import { Input } from './ui/Input';
-import { Label } from './ui/Label';
-import { Select } from './ui/Select';
-import { Textarea } from './ui/Textarea';
+import { Button } from '@/components/ui/Button';
+import { FieldMessage } from '@/components/ui/FieldMessage';
+import { Input } from '@/components/ui/Input';
+import { Label } from '@/components/ui/Label';
+import { Select } from '@/components/ui/Select';
+import { Textarea } from '@/components/ui/Textarea';
+import { SPECIALIZATIONS } from './constants';
+import {
+  validateDescription,
+  validateForm,
+  validatePassword,
+  validateUsername,
+} from './validation';
 import './SignupForm.css';
-
-const SPECIALIZATIONS = ['Full Stack', 'Frontend', 'Backend'];
 
 const INITIAL_FORM_DATA = {
   username: '',
   password: '',
   description: '',
-};
-
-const SYMBOLS = '!@#$%^&*()-_=+[]{}|;:\'\\",.<>?/`~';
-const LETTER_REGEX = /[a-zA-Z]/;
-const NUMBER_REGEX = /[0-9]/;
-const ALPHANUMERIC_REGEX = /^[a-zA-Z0-9]+$/;
-
-const validateUsername = username => {
-  if (username.length < 6) return 'Username must be at least 6 characters';
-
-  const hasAlphanumeric = ALPHANUMERIC_REGEX.test(username);
-  if (!hasAlphanumeric) return 'Username must be letters and numbers only';
-
-  return '';
-};
-
-const validatePassword = password => {
-  if (password.length < 8) return 'Password must be at least 8 characters';
-
-  const hasLetter = LETTER_REGEX.test(password);
-  const hasNumber = NUMBER_REGEX.test(password);
-  const hasSymbol = Array.from(password).some(character =>
-    SYMBOLS.includes(character),
-  );
-
-  if (!hasLetter) return 'Password must contain at least 1 letter';
-  if (!hasNumber) return 'Password must contain at least 1 number';
-  if (!hasSymbol) return 'Password must contain at least 1 symbol';
-
-  return '';
-};
-
-const validateDescription = description => {
-  const length = description.trim().length;
-
-  return length < 100 || length > 1000
-    ? 'Description must be between 100 and 1000 characters'
-    : '';
-};
-
-const validateForm = formData => {
-  const years = Number(formData.yearsOfExperience);
-
-  return {
-    fullName: formData.fullName.trim() === '' ? 'Full Name is required' : '',
-    username: validateUsername(formData.username),
-    password: validatePassword(formData.password),
-    specialization: !SPECIALIZATIONS.includes(formData.specialization)
-      ? 'Specialization is required'
-      : '',
-    yearsOfExperience:
-      !Number.isInteger(years) || years < 1
-        ? 'Years of Experience must be at least 1'
-        : '',
-    description: validateDescription(formData.description),
-  };
 };
 
 const focusAndScrollToTop = form => {
