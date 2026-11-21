@@ -15,6 +15,7 @@ import {
 } from './validation';
 import './SignupForm.css';
 
+// Only fields with live feedback need to be kept in state.
 const INITIAL_FORM_DATA = {
   username: '',
   password: '',
@@ -22,6 +23,7 @@ const INITIAL_FORM_DATA = {
 };
 
 const focusAndScrollToTop = form => {
+  // Focus must not interrupt the smooth scroll, so we use preventScroll.
   form?.elements.namedItem('fullName').focus({ preventScroll: true });
   form?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
@@ -30,7 +32,8 @@ export const SignupForm = () => {
   const formRef = useRef(null);
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
   const [submitErrors, setSubmitErrors] = useState({});
-  const [touchedFields, setTouchedFields] = useState({}); // show live validation errors only for touched fields
+  // Avoid showing errors before the user edits a field or submits the form.
+  const [touchedFields, setTouchedFields] = useState({});
 
   const liveErrors = {
     username: touchedFields.username ? validateUsername(formData.username) : '',
@@ -40,6 +43,7 @@ export const SignupForm = () => {
       : '',
   };
 
+  // Live feedback takes precedence over errors from the last submit.
   const errors = {
     ...submitErrors,
     ...liveErrors,
@@ -59,9 +63,9 @@ export const SignupForm = () => {
   const handleSubmit = e => {
     e.preventDefault();
 
-    const fields = formRef.current?.elements; // Get all form fields from ref
+    const fields = formRef.current?.elements;
 
-    // Collect all form data including fields not managed by formData state
+    // Create the complete form data object including uncontrolled fields.
     const data = {
       ...formData,
       fullName: fields.namedItem('fullName').value,
@@ -69,6 +73,7 @@ export const SignupForm = () => {
       yearsOfExperience: fields.namedItem('yearsOfExperience').value,
     };
 
+    // Mark controlled fields as touched to show live feedback.
     setTouchedFields({ username: true, password: true, description: true });
 
     const validationErrors = validateForm(data);
@@ -82,9 +87,12 @@ export const SignupForm = () => {
   };
 
   const handleReset = () => {
+    // Reset controlled fields and errors
     setFormData(INITIAL_FORM_DATA);
     setSubmitErrors({});
     setTouchedFields({});
+
+    // Reset the uncontrolled fields.
     const form = formRef.current;
     form?.reset();
     focusAndScrollToTop(form);
@@ -96,7 +104,7 @@ export const SignupForm = () => {
   };
 
   useEffect(() => {
-    focusAndScrollToTop(formRef.current);
+    focusAndScrollToTop(formRef.current); // Focus on the first input
   }, []);
 
   return (
