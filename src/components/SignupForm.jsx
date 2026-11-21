@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import { ArrowUp } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from './ui/Button';
 import { FieldMessage } from './ui/FieldMessage';
 import { Input } from './ui/Input';
@@ -109,7 +110,7 @@ export const SignupForm = () => {
   const handleSubmit = e => {
     e.preventDefault();
 
-    const fields = formRef.current.elements; // Get all form fields from ref
+    const fields = formRef.current?.elements; // Get all form fields from ref
 
     // Collect all form data including fields not managed by formData state
     const data = {
@@ -130,6 +131,24 @@ export const SignupForm = () => {
 
     console.log('formData:', data);
   };
+
+  const handleReset = () => {
+    setFormData(INITIAL_FORM_DATA);
+    setSubmitErrors({});
+    setTouchedFields({});
+    formRef.current?.reset();
+  };
+
+  const handleScrollToTop = () => {
+    formRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start', // Scroll to the top of the form
+    });
+  };
+
+  useEffect(() => {
+    formRef.current?.elements.namedItem('fullName').focus();
+  }, []);
 
   return (
     <form ref={formRef} onSubmit={handleSubmit} className='signup-form'>
@@ -268,8 +287,20 @@ export const SignupForm = () => {
       </div>
 
       <div className='form-field'>
+        <Button variant={Button.variant.ghost} onClick={handleReset}>
+          Reset
+        </Button>
         <Button type='submit'>Sign Up</Button>
       </div>
+
+      <Button
+        variant={Button.variant.ghost}
+        onClick={handleScrollToTop}
+        className='scroll-to-top'
+        aria-label='Scroll to top'
+      >
+        <ArrowUp size={16} aria-hidden='true' />
+      </Button>
     </form>
   );
 };
