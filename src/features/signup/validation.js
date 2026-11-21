@@ -32,7 +32,7 @@ export const validateDescription = description => {
   const length = description.trim().length;
 
   return length < 100 || length > 1000
-    ? 'Description must be between 100 and 1000 characters'
+    ? `Description must be between 100 and 1000 characters (${length})`
     : '';
 };
 
