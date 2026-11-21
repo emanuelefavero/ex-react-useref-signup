@@ -17,13 +17,51 @@ const INITIAL_FORM_DATA = {
   description: '',
 };
 
+const SYMBOLS = '!@#$%^&*()-_=+[]{}|;:\'\\",.<>?/`~';
+const LETTER_REGEX = /[a-zA-Z]/;
+const NUMBER_REGEX = /[0-9]/;
+const ALPHANUMERIC_REGEX = /^[a-zA-Z0-9]+$/;
+
+const validateUsername = username => {
+  if (username.length < 6) return 'Username must be at least 6 characters';
+
+  const hasAlphanumeric = ALPHANUMERIC_REGEX.test(username);
+  if (!hasAlphanumeric) return 'Username must be letters and numbers only';
+
+  return '';
+};
+
+const validatePassword = password => {
+  if (password.length < 8) return 'Password must be at least 8 characters';
+
+  const hasLetter = LETTER_REGEX.test(password);
+  const hasNumber = NUMBER_REGEX.test(password);
+  const hasSymbol = Array.from(password).some(character =>
+    SYMBOLS.includes(character),
+  );
+
+  if (!hasLetter) return 'Password must contain at least 1 letter';
+  if (!hasNumber) return 'Password must contain at least 1 number';
+  if (!hasSymbol) return 'Password must contain at least 1 symbol';
+
+  return '';
+};
+
+const validateDescription = description => {
+  const length = description.trim().length;
+
+  return length < 100 || length > 1000
+    ? 'Description must be between 100 and 1000 characters'
+    : '';
+};
+
 const validateForm = formData => {
   const years = Number(formData.yearsOfExperience);
 
   return {
     fullName: formData.fullName.trim() === '' ? 'Full Name is required' : '',
-    username: formData.username.trim() === '' ? 'Username is required' : '',
-    password: formData.password.trim() === '' ? 'Password is required' : '',
+    username: validateUsername(formData.username),
+    password: validatePassword(formData.password),
     specialization: !SPECIALIZATIONS.includes(formData.specialization)
       ? 'Specialization is required'
       : '',
@@ -31,19 +69,36 @@ const validateForm = formData => {
       !Number.isInteger(years) || years < 1
         ? 'Years of Experience must be at least 1'
         : '',
-    description:
-      formData.description.trim() === '' ? 'Description is required' : '',
+    description: validateDescription(formData.description),
   };
 };
 
 export const SignupForm = () => {
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
-  const [errors, setErrors] = useState({});
+  const [submitErrors, setSubmitErrors] = useState({});
+  const [touchedFields, setTouchedFields] = useState({}); // show live validation errors only for touched fields
+
+  const liveErrors = {
+    username: touchedFields.username ? validateUsername(formData.username) : '',
+    password: touchedFields.password ? validatePassword(formData.password) : '',
+    description: touchedFields.description
+      ? validateDescription(formData.description)
+      : '',
+  };
+
+  const errors = {
+    ...submitErrors,
+    ...liveErrors,
+  };
 
   const handleChange = e => {
     const { name, value } = e.target;
 
-    setErrors(prevErrors => ({
+    if (name in liveErrors) {
+      setTouchedFields(prevFields => ({ ...prevFields, [name]: true }));
+    }
+
+    setSubmitErrors(prevErrors => ({
       ...prevErrors,
       [name]: '',
     }));
@@ -57,8 +112,10 @@ export const SignupForm = () => {
   const handleSubmit = e => {
     e.preventDefault();
 
+    setTouchedFields({ username: true, password: true, description: true });
+
     const validationErrors = validateForm(formData);
-    setErrors(validationErrors);
+    setSubmitErrors(validationErrors);
 
     const hasErrors = Object.values(validationErrors).some(Boolean);
 
@@ -102,9 +159,13 @@ export const SignupForm = () => {
 
         <FieldMessage
           id='username-message'
-          variant={FieldMessage.variant.danger}
+          variant={
+            errors.username
+              ? FieldMessage.variant.danger
+              : FieldMessage.variant.success
+          }
         >
-          {errors.username}
+          {touchedFields.username && (errors.username || 'Username is valid')}
         </FieldMessage>
       </div>
 
@@ -122,9 +183,13 @@ export const SignupForm = () => {
         />
         <FieldMessage
           id='password-message'
-          variant={FieldMessage.variant.danger}
+          variant={
+            errors.password
+              ? FieldMessage.variant.danger
+              : FieldMessage.variant.success
+          }
         >
-          {errors.password}
+          {touchedFields.password && (errors.password || 'Password is valid')}
         </FieldMessage>
       </div>
 
@@ -187,9 +252,14 @@ export const SignupForm = () => {
         />
         <FieldMessage
           id='description-message'
-          variant={FieldMessage.variant.danger}
+          variant={
+            errors.description
+              ? FieldMessage.variant.danger
+              : FieldMessage.variant.success
+          }
         >
-          {errors.description}
+          {touchedFields.description &&
+            (errors.description || 'Description is valid')}
         </FieldMessage>
       </div>
 
