@@ -2,6 +2,12 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 1rem 1.5rem;
+  padding-bottom: 2.5rem;
+
+  > .buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
 
   button[type='submit'] {
     width: 200px;

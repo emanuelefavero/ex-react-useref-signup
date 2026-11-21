@@ -291,7 +291,7 @@ export const SignupForm = () => {
         </FieldMessage>
       </div>
 
-      <div className='form-field'>
+      <div className='form-field buttons'>
         <Button variant={Button.variant.ghost} onClick={handleReset}>
           Reset
         </Button>
