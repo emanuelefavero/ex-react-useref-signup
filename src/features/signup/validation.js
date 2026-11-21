@@ -1,6 +1,6 @@
 import { SPECIALIZATIONS } from './constants';
 
-const SYMBOLS = '!@#$%^&*()-_=+[]{}|;:\'\\",.<>?/`~';
+const SYMBOL_REGEX = /[!@#$%^&*()\-\_=+\[\]{}|;:'\\",.<>?/`~]/;
 const LETTER_REGEX = /[a-zA-Z]/;
 const NUMBER_REGEX = /[0-9]/;
 const ALPHANUMERIC_REGEX = /^[a-zA-Z0-9]+$/;
@@ -19,9 +19,7 @@ export const validatePassword = password => {
 
   const hasLetter = LETTER_REGEX.test(password);
   const hasNumber = NUMBER_REGEX.test(password);
-  const hasSymbol = Array.from(password).some(character =>
-    SYMBOLS.includes(character),
-  );
+  const hasSymbol = SYMBOL_REGEX.test(password);
 
   if (!hasLetter) return 'Password must contain at least 1 letter';
   if (!hasNumber) return 'Password must contain at least 1 number';
