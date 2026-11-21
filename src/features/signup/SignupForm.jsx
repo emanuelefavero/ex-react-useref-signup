@@ -50,11 +50,6 @@ export const SignupForm = () => {
 
     setTouchedFields(prevFields => ({ ...prevFields, [name]: true }));
 
-    setSubmitErrors(prevErrors => ({
-      ...prevErrors,
-      [name]: '',
-    }));
-
     setFormData(prevData => ({
       ...prevData,
       [name]: value,
