@@ -72,6 +72,11 @@ const validateForm = formData => {
   };
 };
 
+const focusAndScrollToTop = form => {
+  form?.elements.namedItem('fullName').focus({ preventScroll: true });
+  form?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
 export const SignupForm = () => {
   const formRef = useRef(null);
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
@@ -136,18 +141,18 @@ export const SignupForm = () => {
     setFormData(INITIAL_FORM_DATA);
     setSubmitErrors({});
     setTouchedFields({});
-    formRef.current?.reset();
+    const form = formRef.current;
+    form?.reset();
+    focusAndScrollToTop(form);
   };
 
   const handleScrollToTop = () => {
-    formRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start', // Scroll to the top of the form
-    });
+    const form = formRef.current;
+    focusAndScrollToTop(form);
   };
 
   useEffect(() => {
-    formRef.current?.elements.namedItem('fullName').focus();
+    focusAndScrollToTop(formRef.current);
   }, []);
 
   return (
